@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXUS — Gaming Marketplace</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060810;
+    --bg2: #0b0f1a;
+    --bg3: #111827;
+    --accent: #00f5c4;
+    --accent2: #ff3d71;
+    --accent3: #7b61ff;
+    --gold: #ffd166;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --border: rgba(255,255,255,0.07);
+    --glow: 0 0 40px rgba(0,245,196,0.15);
+    --glow2: 0 0 40px rgba(123,97,255,0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Rajdhani', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* NOISE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    height: 70px;
+    background: rgba(6,8,16,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-shadow: 0 0 20px rgba(0,245,196,0.5);
+    text-decoration: none;
+  }
+
+  .nav-logo span { color: var(--accent2); }
+
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    position: relative;
+  }
+
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; left: 0; right: 0;
+    height: 1px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transition: transform 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--accent); }
+  .nav-links a:hover::after { transform: scaleX(1); }
+
+  .nav-actions { display: flex; gap: 12px; align-items: center; }
+
+  .btn {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 10px 24px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .btn-ghost:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: 0 0 16px rgba(0,245,196,0.2);
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #060810;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%);
+    transform: translateX(-100%);
+    transition: transform 0.4s;
+  }
+
+  .btn-primary:hover::before { transform: translateX(100%); }
+  .btn-primary:hover { box-shadow: 0 0 24px rgba(0,245,196,0.4); }
+
+  .btn-danger {
+    background: var(--accent2);
+    color: white;
+  }
+
+  .btn-danger:hover { box-shadow: 0 0 24px rgba(255,61,113,0.4); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding: 120px 40px 80px;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 70% 50%, rgba(123,97,255,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 20% 80%, rgba(0,245,196,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse 40% 30% at 80% 10%, rgba(255,61,113,0.07) 0%, transparent 50%);
+  }
+
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,245,196,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,245,196,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 700px;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    background: rgba(0,245,196,0.08);
+    border: 1px solid rgba(0,245,196,0.2);
+    border-radius: 2px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 28px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .badge-dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(64px, 8vw, 110px);
+    line-height: 0.95;
+    letter-spacing: 2px;
+    animation: fadeUp 0.6s 0.1s ease both;
+    margin-bottom: 4px;
+  }
+
+  h1 .line2 {
+    display: block;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255,255,255,0.2);
+  }
+
+  h1 .accent { color: var(--accent); }
+  h1 .danger { color: var(--accent2); }
+
+  .hero-sub {
+    font-size: 18px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin: 24px 0 40px;
+    max-width: 480px;
+    animation: fadeUp 0.6s 0.2s ease both;
+    font-weight: 500;
+  }
+
+  .hero-ctas {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 40px;
+    margin-top: 64px;
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+
+  .stat-item {}
+
+  .stat-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    letter-spacing: 2px;
+    line-height: 1;
+    color: var(--accent);
+  }
+
+  .stat-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .stat-divider {
+    width: 1px;
+    background: var(--border);
+    margin: 4px 0;
+  }
+
+  /* FLOATING CARDS */
+  .hero-visual {
+    position: absolute;
+    right: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 45%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    padding: 40px;
+    animation: fadeLeft 0.8s 0.3s ease both;
+  }
+
+  @keyframes fadeLeft {
+    from { opacity: 0; transform: translateY(-50%) translateX(40px); }
+    to { opacity: 1; transform: translateY(-50%) translateX(0); }
+  }
+
+  .game-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+  }
+
+  .game-card:hover {
+    border-color: rgba(0,245,196,0.3);
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.4), var(--glow);
+  }
+
+  .game-card:nth-child(2) { margin-top: 32px; }
+  .game-card:nth-child(4) { margin-top: -32px; }
+
+  .card-img {
+    width: 100%;
+    aspect-ratio: 3/4;
+    object-fit: cover;
+    display: block;
+  }
+
+  .card-img-placeholder {
+    width: 100%;
+    aspect-ratio: 3/4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.05);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-img-placeholder::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.02) 0%, transparent 100%);
+  }
+
+  .gc1 { background: linear-gradient(135deg, #1a0a2e, #0d1b3e); }
+  .gc2 { background: linear-gradient(135deg, #1a0808, #2e0d1a); }
+  .gc3 { background: linear-gradient(135deg, #0a1a1a, #0d2b1e); }
+  .gc4 { background: linear-gradient(135deg, #1a1a0a, #2e2308); }
+
+  .card-info {
+    padding: 12px;
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.9));
+    padding-top: 32px;
+  }
+
+  .card-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 1px;
+    display: block;
+  }
+
+  .card-price {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .card-badge {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: var(--accent2);
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 2px;
+  }
+
+  /* MARQUEE */
+  .marquee-section {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 0;
+    overflow: hidden;
+    background: var(--bg2);
+  }
+
+  .marquee-track {
+    display: flex;
+    gap: 48px;
+    animation: marquee 20s linear infinite;
+    white-space: nowrap;
+    width: max-content;
+  }
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  .marquee-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px;
+    letter-spacing: 3px;
+    color: var(--muted);
+  }
+
+  .marquee-item .dot {
+    width: 4px; height: 4px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+
+  /* SECTION */
+  section {
+    padding: 100px 40px;
+    position: relative;
+  }
+
+  .section-header {
+    margin-bottom: 56px;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::before {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--accent);
+  }
+
+  h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 5vw, 64px);
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+
+  h2 .dim {
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255,255,255,0.15);
+  }
+
+  /* CATEGORIES */
+  .categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+
+  .category-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 28px 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    color: var(--text);
+  }
+
+  .category-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .category-card:hover {
+    border-color: var(--card-accent, var(--accent));
+    transform: translateY(-4px);
+  }
+
+  .category-card:hover::before { opacity: 1; }
+
+  .cat-icon {
+    font-size: 36px;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .cat-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .cat-count {
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+  }
+
+  .cat-arrow {
+    position: absolute;
+    top: 20px; right: 20px;
+    font-size: 18px;
+    opacity: 0;
+    transition: all 0.3s;
+    transform: translateX(-8px);
+  }
+
+  .category-card:hover .cat-arrow {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* LISTINGS */
+  .listings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  .listing-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+  }
+
+  .listing-card:hover {
+    border-color: rgba(0,245,196,0.25);
+    transform: translateY(-6px);
+    box-shadow: 0 24px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,245,196,0.1);
+  }
+
+  .listing-game-banner {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 4px;
+    opacity: 0.6;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .listing-game-banner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(transparent, var(--bg2));
+  }
+
+  .listing-body { padding: 20px; }
+
+  .listing-game-tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 2px;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+
+  .listing-title {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+
+  .listing-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+
+  .listing-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .seller-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .seller-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  .seller-name {
+    font-size: 12px;
+    font-weight: 600;
+    display: block;
+  }
+
+  .seller-rating {
+    font-size: 11px;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .price-tag {
+    text-align: right;
+  }
+
+  .price-amount {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+    display: block;
+  }
+
+  .price-label {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* TRUST SECTION */
+  .trust-section {
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .trust-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .trust-item {
+    background: var(--bg2);
+    padding: 40px 32px;
+    text-align: center;
+  }
+
+  .trust-icon {
+    font-size: 40px;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .trust-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    color: var(--accent);
+  }
+
+  .trust-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* HOW IT WORKS */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0;
+    position: relative;
+  }
+
+  .steps::before {
+    content: '';
+    position: absolute;
+    top: 40px; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), var(--accent), var(--border), transparent);
+  }
+
+  .step {
+    padding: 0 32px;
+    text-align: center;
+    position: relative;
+  }
+
+  .step-number {
+    width: 80px; height: 80px;
+    margin: 0 auto 24px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s;
+  }
+
+  .step:hover .step-number {
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: var(--glow);
+  }
+
+  .step-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  .step-desc {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* SELLER CTA */
+  .seller-cta {
+    background: linear-gradient(135deg, rgba(123,97,255,0.1), rgba(0,245,196,0.05));
+    border: 1px solid rgba(123,97,255,0.2);
+    border-radius: 16px;
+    padding: 80px 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+    flex-wrap: wrap;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .seller-cta::before {
+    content: '';
+    position: absolute;
+    right: -100px; top: -100px;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(123,97,255,0.15), transparent 70%);
+    pointer-events: none;
+  }
+
+  .cta-text h2 { margin-bottom: 16px; }
+  .cta-text p {
+    font-size: 17px;
+    color: var(--muted);
+    max-width: 420px;
+    line-height: 1.6;
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    padding: 80px 40px 40px;
+  }
+
+  .footer-top {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 60px;
+  }
+
+  .footer-brand p {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-top: 16px;
+    max-width: 280px;
+  }
+
+  .footer-col h4 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+
+  .footer-col ul { list-style: none; }
+  .footer-col li { margin-bottom: 10px; }
+  .footer-col a {
+    font-size: 14px;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-col a:hover { color: var(--accent); }
+
+  .footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .footer-bottom p {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .social-links {
+    display: flex;
+    gap: 12px;
+  }
+
+  .social-btn {
+    width: 36px; height: 36px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    text-decoration: none;
+    color: var(--muted);
+  }
+
+  .social-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: 0 0 12px rgba(0,245,196,0.2);
+  }
+
+  /* SEARCH BAR */
+  .search-section {
+    background: var(--bg3);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 40px;
+  }
+
+  .search-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .search-input-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0 20px;
+    gap: 12px;
+    transition: border-color 0.2s;
+  }
+
+  .search-input-wrap:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(0,245,196,0.1);
+  }
+
+  .search-input-wrap span { color: var(--muted); }
+
+  .search-input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text);
+    padding: 16px 0;
+  }
+
+  .search-input::placeholder { color: var(--muted); }
+
+  .search-filters {
+    display: flex;
+    gap: 8px;
+  }
+
+  .filter-btn {
+    padding: 10px 18px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+
+  .tab {
+    padding: 14px 28px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.2s;
+  }
+
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .tab:hover:not(.active) { color: var(--text); }
+
+  /* NOTIFICATION BADGE */
+  .notif {
+    width: 8px; height: 8px;
+    background: var(--accent2);
+    border-radius: 50%;
+    display: inline-block;
+    position: absolute;
+    top: 8px; right: 8px;
+    animation: pulse 1.5s infinite;
+  }
+
+  .icon-btn {
+    position: relative;
+    width: 40px; height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  .icon-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .hero-visual { display: none; }
+    .footer-top { grid-template-columns: 1fr 1fr; }
+    nav .nav-links { display: none; }
+    .steps::before { display: none; }
+    .seller-cta { padding: 40px 28px; }
+  }
+
+  @media (max-width: 600px) {
+    section, nav, .search-section { padding-left: 20px; padding-right: 20px; }
+    .hero { padding-left: 20px; padding-right: 20px; }
+    .footer-top { grid-template-columns: 1fr; }
+  }
+
+  /* ONLINE INDICATOR */
+  .online-now {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(0,245,196,0.08);
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(0,245,196,0.15);
+  }
+
+  .online-dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  /* PROMO BANNER */
+  .promo-banner {
+    background: linear-gradient(90deg, var(--accent2), var(--accent3));
+    padding: 10px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  .promo-banner a {
+    color: white;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<!-- PROMO BANNER -->
+<div class="promo-banner">
+  🎮 &nbsp;Launch Special: 0% fees for your first month as a seller! &nbsp;<a>Start Selling →</a>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">NEX<span>US</span></a>
+  <ul class="nav-links">
+    <li><a href="#">Browse</a></li>
+    <li><a href="#">Games</a></li>
+    <li><a href="#">Sellers</a></li>
+    <li><a href="#">Boost</a></li>
+    <li><a href="#">Tournaments</a></li>
+  </ul>
+  <div class="nav-actions">
+    <div class="online-now"><span class="online-dot"></span>18,432 online</div>
+    <a class="icon-btn" title="Messages">💬 <span class="notif"></span></a>
+    <a class="btn btn-ghost">Log In</a>
+    <a class="btn btn-primary">Join Free</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      The Next-Gen Gaming Marketplace
+    </div>
+
+    <h1>
+      TRADE.<br>
+      <span class="line2">BOOST.</span><br>
+      <span class="accent">DOMINATE</span><span class="danger">.</span>
+    </h1>
+
+    <p class="hero-sub">
+      Buy & sell game accounts, currency, items, and boosting services. Instant delivery. Bulletproof escrow. Zero BS.
+    </p>
+
+    <div class="hero-ctas">
+      <a class="btn btn-primary" style="font-size:15px; padding:14px 32px;">⚡ Browse Offers</a>
+      <a class="btn btn-ghost" style="font-size:15px; padding:14px 32px;">🎯 Sell Now</a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-value">4.2M+</div>
+        <div class="stat-label">Active Players</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-value">98K+</div>
+        <div class="stat-label">Listings Live</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-value">$0</div>
+        <div class="stat-label">Hidden Fees</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Game Cards -->
+  <div class="hero-visual">
+    <div class="game-card">
+      <div class="card-img-placeholder gc1">WOW</div>
+      <div class="card-badge">HOT</div>
+      <div class="card-info">
+        <span class="card-title">WoW Gold — EU</span>
+        <span class="card-price">from $1.20 / 1k</span>
+      </div>
+    </div>
+    <div class="game-card">
+      <div class="card-img-placeholder gc2">D4</div>
+      <div class="card-info">
+        <span class="card-title">Diablo IV Account</span>
+        <span class="card-price">from $24.99</span>
+      </div>
+    </div>
+    <div class="game-card">
+      <div class="card-img-placeholder gc3">CSGO</div>
+      <div class="card-badge">NEW</div>
+      <div class="card-info">
+        <span class="card-title">CS2 Prime Account</span>
+        <span class="card-price">from $12.00</span>
+      </div>
+    </div>
+    <div class="game-card">
+      <div class="card-img-placeholder gc4">LOL</div>
+      <div class="card-info">
+        <span class="card-title">LoL Rank Boost</span>
+        <span class="card-price">from $8.99 / div</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-section">
+  <div class="marquee-track">
+    <span class="marquee-item"><span class="dot"></span>WORLD OF WARCRAFT</span>
+    <span class="marquee-item"><span class="dot"></span>DIABLO IV</span>
+    <span class="marquee-item"><span class="dot"></span>COUNTER-STRIKE 2</span>
+    <span class="marquee-item"><span class="dot"></span>LEAGUE OF LEGENDS</span>
+    <span class="marquee-item"><span class="dot"></span>FINAL FANTASY XIV</span>
+    <span class="marquee-item"><span class="dot"></span>FORTNITE</span>
+    <span class="marquee-item"><span class="dot"></span>VALORANT</span>
+    <span class="marquee-item"><span class="dot"></span>ESCAPE FROM TARKOV</span>
+    <span class="marquee-item"><span class="dot"></span>PATH OF EXILE</span>
+    <span class="marquee-item"><span class="dot"></span>GTA ONLINE</span>
+    <!-- repeated for seamless loop -->
+    <span class="marquee-item"><span class="dot"></span>WORLD OF WARCRAFT</span>
+    <span class="marquee-item"><span class="dot"></span>DIABLO IV</span>
+    <span class="marquee-item"><span class="dot"></span>COUNTER-STRIKE 2</span>
+    <span class="marquee-item"><span class="dot"></span>LEAGUE OF LEGENDS</span>
+    <span class="marquee-item"><span class="dot"></span>FINAL FANTASY XIV</span>
+    <span class="marquee-item"><span class="dot"></span>FORTNITE</span>
+    <span class="marquee-item"><span class="dot"></span>VALORANT</span>
+    <span class="marquee-item"><span class="dot"></span>ESCAPE FROM TARKOV</span>
+    <span class="marquee-item"><span class="dot"></span>PATH OF EXILE</span>
+    <span class="marquee-item"><span class="dot"></span>GTA ONLINE</span>
+  </div>
+</div>
+
+<!-- SEARCH -->
+<div class="search-section">
+  <div class="search-wrapper">
+    <div class="search-input-wrap">
+      <span>🔍</span>
+      <input class="search-input" type="text" placeholder="Search games, items, accounts, boosting...">
+    </div>
+    <div class="search-filters">
+      <button class="filter-btn">🎮 Game ▾</button>
+      <button class="filter-btn">📦 Category ▾</button>
+      <button class="filter-btn">💲 Price ▾</button>
+    </div>
+    <button class="btn btn-primary">Search</button>
+  </div>
+</div>
+
+<!-- CATEGORIES -->
+<section>
+  <div class="section-header">
+    <div class="section-label">What are you looking for?</div>
+    <h2>BROWSE BY <span class="dim">CATEGORY</span></h2>
+  </div>
+
+  <div class="categories-grid">
+    <a class="category-card" style="--card-accent: #00f5c4; background: linear-gradient(135deg, rgba(0,245,196,0.05), var(--bg2));">
+      <span class="cat-icon">⚔️</span>
+      <span class="cat-name">Game Accounts</span>
+      <span class="cat-count">23,441 listings</span>
+      <span class="cat-arrow">→</span>
+    </a>
+    <a class="category-card" style="--card-accent: #ffd166; background: linear-gradient(135deg, rgba(255,209,102,0.05), var(--bg2));">
+      <span class="cat-icon">💰</span>
+      <span class="cat-name">In-Game Currency</span>
+      <span class="cat-count">18,230 listings</span>
+      <span class="cat-arrow">→</span>
+    </a>
+    <a class="category-card" style="--card-accent: #7b61ff; background: linear-gradient(135deg, rgba(123,97,255,0.05), var(--bg2));">
+      <span class="cat-icon">🚀</span>
+      <span class="cat-name">Rank Boosting</span>
+      <span class="cat-count">9,817 listings</span>
+      <span class="cat-arrow">→</span>
+    </a>
+    <a class="category-card" style="--card-accent: #ff3d71; background: linear-gradient(135deg, rgba(255,61,113,0.05), var(--bg2));">
+      <span class="cat-icon">🎒</span>
+      <span class="cat-name">Items & Skins</span>
+      <span class="cat-count">41,092 listings</span>
+      <span class="cat-arrow">→</span>
+    </a>
+    <a class="category-card" style="--card-accent: #06d6a0; background: linear-gradient(135deg, rgba(6,214,160,0.05), var(--bg2));">
+      <span class="cat-icon">🏆</span>
+      <span class="cat-name">Coaching</span>
+      <span class="cat-count">3,204 listings</span>
+      <span class="cat-arrow">→</span>
+    </a>
+    <a class="category-card" style="--card-accent: #f4a261; background: linear-gradient(135deg, rgba(244,162,97,0.05), var(--bg2));">
+      <span class="cat-icon">🔑</span>
+      <span class="cat-name">CD Keys & Codes</span>
+      <span class="cat-count">7,650 listings</span>
+      <span class="cat-arrow">→</span>
+    </a>
+  </div>
+</section>
+
+<!-- LISTINGS -->
+<section style="padding-top: 0;">
+  <div class="section-header">
+    <div class="section-label">What's hot right now</div>
+    <h2>TRENDING <span class="dim">OFFERS</span></h2>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active">All Games</div>
+    <div class="tab">WoW</div>
+    <div class="tab">CS2</div>
+    <div class="tab">Diablo IV</div>
+    <div class="tab">LoL</div>
+    <div class="tab">Fortnite</div>
+  </div>
+
+  <div class="listings-grid">
+
+    <!-- Card 1 -->
+    <div class="listing-card">
+      <div class="listing-game-banner gc1">WORLD OF WARCRAFT</div>
+      <div class="listing-body">
+        <span class="listing-game-tag" style="background:rgba(255,140,0,0.15); color:#ff8c00;">WoW Classic</span>
+        <div class="listing-title">WoW Classic Gold — Firemaw EU (per 1000g)</div>
+        <div class="listing-desc">Fast delivery, online 20h/day. Mailbox method. Trusted seller since 2019.</div>
+        <div class="listing-meta">
+          <div class="seller-info">
+            <div class="seller-avatar" style="background:rgba(0,245,196,0.15); color:var(--accent);">VK</div>
+            <div>
+              <span class="seller-name">VaultKeeper</span>
+              <span class="seller-rating">★ 4.98 <span style="color:var(--muted);">(2.1k)</span></span>
+            </div>
+          </div>
+          <div class="price-tag">
+            <span class="price-amount">$1.20</span>
+            <span class="price-label">per 1000g</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="listing-card">
+      <div class="listing-game-banner gc2">DIABLO IV</div>
+      <div class="listing-body">
+        <span class="listing-game-tag" style="background:rgba(255,61,113,0.15); color:var(--accent2);">Diablo IV</span>
+        <div class="listing-title">D4 Eternal HC Softcore Account — S4 Ready</div>
+        <div class="listing-desc">Paragon 300+ Barbarian. BiS gear. All campaign done. Account is NOT banned history.</div>
+        <div class="listing-meta">
+          <div class="seller-info">
+            <div class="seller-avatar" style="background:rgba(255,61,113,0.15); color:var(--accent2);">DX</div>
+            <div>
+              <span class="seller-name">D4xpert</span>
+              <span class="seller-rating">★ 5.00 <span style="color:var(--muted);">(847)</span></span>
+            </div>
+          </div>
+          <div class="price-tag">
+            <span class="price-amount">$49.99</span>
+            <span class="price-label">instant</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="listing-card">
+      <div class="listing-game-banner gc3">COUNTER-STRIKE 2</div>
+      <div class="listing-body">
+        <span class="listing-game-tag" style="background:rgba(0,245,196,0.1); color:var(--accent);">CS2</span>
+        <div class="listing-title">CS2 Prime Account — Global Elite — 3500+ Hours</div>
+        <div class="listing-desc">Clean history. No vac. 2x rare knife skins included. Delivery within 10 minutes.</div>
+        <div class="listing-meta">
+          <div class="seller-info">
+            <div class="seller-avatar" style="background:rgba(0,245,196,0.15); color:var(--accent);">SN</div>
+            <div>
+              <span class="seller-name">SkinNinja</span>
+              <span class="seller-rating">★ 4.97 <span style="color:var(--muted);">(5.3k)</span></span>
+            </div>
+          </div>
+          <div class="price-tag">
+            <span class="price-amount">$79.00</span>
+            <span class="price-label">negotiable</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="listing-card">
+      <div class="listing-game-banner" style="background: linear-gradient(135deg, #0d0d2e, #1a0a3e);">LEAGUE OF LEGENDS</div>
+      <div class="listing-body">
+        <span class="listing-game-tag" style="background:rgba(123,97,255,0.15); color:var(--accent3);">LoL — Boosting</span>
+        <div class="listing-title">Diamond → Master Rank Boost (EUW)</div>
+        <div class="listing-desc">Top 100 challenger booster. VPN protected. Discord updates every game. 100% winrate history.</div>
+        <div class="listing-meta">
+          <div class="seller-info">
+            <div class="seller-avatar" style="background:rgba(123,97,255,0.15); color:var(--accent3);">CH</div>
+            <div>
+              <span class="seller-name">ChallengerX</span>
+              <span class="seller-rating">★ 4.99 <span style="color:var(--muted);">(1.2k)</span></span>
+            </div>
+          </div>
+          <div class="price-tag">
+            <span class="price-amount">$34.99</span>
+            <span class="price-label">per division</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 5 -->
+    <div class="listing-card">
+      <div class="listing-game-banner" style="background: linear-gradient(135deg, #1a1020, #0d1a2e);">FINAL FANTASY XIV</div>
+      <div class="listing-body">
+        <span class="listing-game-tag" style="background:rgba(255,209,102,0.1); color:var(--gold);">FFXIV</span>
+        <div class="listing-title">FFXIV Gil — Chaos DC — 5M Bundle</div>
+        <div class="listing-desc">Face to face trade. Always in stock. Immediate delivery 24/7. Auto-delivery available.</div>
+        <div class="listing-meta">
+          <div class="seller-info">
+            <div class="seller-avatar" style="background:rgba(255,209,102,0.1); color:var(--gold);">GG</div>
+            <div>
+              <span class="seller-name">GilGuru</span>
+              <span class="seller-rating">★ 4.96 <span style="color:var(--muted);">(3.7k)</span></span>
+            </div>
+          </div>
+          <div class="price-tag">
+            <span class="price-amount">$6.50</span>
+            <span class="price-label">5M gil</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 6 -->
+    <div class="listing-card">
+      <div class="listing-game-banner" style="background: linear-gradient(135deg, #0f1a10, #0d2210);">ESCAPE FROM TARKOV</div>
+      <div class="listing-body">
+        <span class="listing-game-tag" style="background:rgba(6,214,160,0.1); color:#06d6a0;">EFT</span>
+        <div class="listing-title">EFT Rouble Pack — 100M — Standard Edition</div>
+        <div class="listing-desc">Safest method. No bans in 4 years. PMC drop. Full stock always available.</div>
+        <div class="listing-meta">
+          <div class="seller-info">
+            <div class="seller-avatar" style="background:rgba(6,214,160,0.1); color:#06d6a0;">TR</div>
+            <div>
+              <span class="seller-name">TarkovRich</span>
+              <span class="seller-rating">★ 4.95 <span style="color:var(--muted);">(988)</span></span>
+            </div>
+          </div>
+          <div class="price-tag">
+            <span class="price-amount">$14.99</span>
+            <span class="price-label">100M RUB</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="text-align:center; margin-top:48px;">
+    <a class="btn btn-ghost" style="padding:14px 40px; font-size:14px;">Load More Listings →</a>
+  </div>
+</section>
+
+<!-- TRUST -->
+<section class="trust-section">
+  <div class="trust-grid">
+    <div class="trust-item">
+      <span class="trust-icon">🔒</span>
+      <div class="trust-title">Bulletproof Escrow</div>
+      <p class="trust-desc">Funds held safely until delivery confirmed. Dispute center available 24/7 with real humans.</p>
+    </div>
+    <div class="trust-item">
+      <span class="trust-icon">⚡</span>
+      <div class="trust-title">Instant Delivery</div>
+      <p class="trust-desc">Thousands of sellers online at any moment. Most orders fulfilled within minutes.</p>
+    </div>
+    <div class="trust-item">
+      <span class="trust-icon">🛡️</span>
+      <div class="trust-title">Buyer Protection</div>
+      <p class="trust-desc">100% money-back guarantee if seller fails to deliver. No questions asked policy.</p>
+    </div>
+    <div class="trust-item">
+      <span class="trust-icon">🌍</span>
+      <div class="trust-title">40+ Currencies</div>
+      <p class="trust-desc">Pay your way — crypto, cards, PayPal, bank transfers. Global marketplace, local payment.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section>
+  <div class="section-header" style="text-align:center;">
+    <div class="section-label" style="justify-content:center;">Simple by design</div>
+    <h2>HOW <span class="dim">IT WORKS</span></h2>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-number">01</div>
+      <div class="step-title">Browse & Filter</div>
+      <p class="step-desc">Search thousands of verified listings by game, price, delivery speed, or seller rating.</p>
+    </div>
+    <div class="step">
+      <div class="step-number">02</div>
+      <div class="step-title">Pick Your Seller</div>
+      <p class="step-desc">Check real reviews, response time, and completion rate. Chat before you buy.</p>
+    </div>
+    <div class="step">
+      <div class="step-number">03</div>
+      <div class="step-title">Secure Payment</div>
+      <p class="step-desc">Your funds go into escrow — protected until you confirm receipt of your order.</p>
+    </div>
+    <div class="step">
+      <div class="step-number">04</div>
+      <div class="step-title">Receive & Review</div>
+      <p class="step-desc">Get your item, release payment, and leave a review to help the community.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SELLER CTA -->
+<section style="padding-top:0;">
+  <div class="seller-cta">
+    <div class="cta-text">
+      <h2>READY TO <span style="color:var(--accent);">START EARNING</span>?</h2>
+      <p>Join 120,000+ sellers already making money on Nexus. Lower fees than the competition. Better tools. Faster payouts.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:16px; align-items:flex-start;">
+      <a class="btn btn-primary" style="font-size:15px; padding:16px 40px;">🚀 Create Seller Account</a>
+      <div style="font-size:13px; color:var(--muted); font-weight:600; letter-spacing:1px;">✓ Free to join &nbsp; ✓ Paid daily &nbsp; ✓ No experience needed</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <a href="#" class="nav-logo" style="font-size:32px;">NEX<span>US</span></a>
+      <p>The world's most trusted gaming marketplace. Buy, sell, and trade in-game goods with full buyer protection and instant delivery.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Marketplace</h4>
+      <ul>
+        <li><a href="#">Browse Listings</a></li>
+        <li><a href="#">Sell Items</a></li>
+        <li><a href="#">Top Sellers</a></li>
+        <li><a href="#">New Arrivals</a></li>
+        <li><a href="#">Flash Deals</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Support</h4>
+      <ul>
+        <li><a href="#">Help Center</a></li>
+        <li><a href="#">Dispute Center</a></li>
+        <li><a href="#">Buyer Guide</a></li>
+        <li><a href="#">Seller Guide</a></li>
+        <li><a href="#">Contact Us</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#">About Nexus</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Press Kit</a></li>
+        <li><a href="#">Terms of Service</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>© 2025 Nexus Gaming Marketplace. All rights reserved.</p>
+    <div class="social-links">
+      <a class="social-btn" title="Discord">💬</a>
+      <a class="social-btn" title="Twitter">𝕏</a>
+      <a class="social-btn" title="Reddit">🔴</a>
+      <a class="social-btn" title="YouTube">▶</a>
+      <a class="social-btn" title="Twitch">🎮</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Tab switching
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.listing-card, .category-card, .trust-item, .step').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(24px)';
+    el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    observer.observe(el);
+  });
+
+  // Animate stats counting
+  function animateCount(el, target, suffix='') {
+    let current = 0;
+    const increment = target / 60;
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= target) { current = target; clearInterval(timer); }
+      el.textContent = Math.floor(current).toLocaleString() + suffix;
+    }, 16);
+  }
+</script>
+</body>
+</html>
